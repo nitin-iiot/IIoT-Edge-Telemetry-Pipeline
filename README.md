@@ -12,21 +12,21 @@ An end-to-end edge computing architecture designed to extract, route, and visual
 ## System Architecture
 
 ```mermaid
-graph LR
-    A[Python CNC Simulation] -->|JSON Payload| B[Mosquitto MQTT Broker]
+graph TD
+    A[Python CNC Simulation] -->|JSON| B[Mosquitto MQTT Broker]
     B -->|Topic Routing| C[Node-RED Edge Processing]
-    C -->|Data Structuring| D[(InfluxDB Time-Series Database)]
-    D -->|Flux Query Downsampling| E[Grafana Dashboard]
+    C -->|Data Structuring| D[(InfluxDB Time-Series DB)]
+    D -->|Flux Query| E[Grafana Dashboard]
 ```
 ## Live Dashboard Output
 ![Grafana Dashboard](dashboard.png)
 ## Data Flow & Module Breakdown
 
 1. **Edge Simulation (`iot_gateway.py`):** A Python routine utilizing `paho-mqtt` to simulate thermal and mechanical physics of a CNC machine. Structures telemetry into JSON envelopes.
-2. **Message Broker (Eclipse Mosquitto):** The lightweight publish/subscribe nervous system running on `localhost:1883`, decoupling data generation from database ingestion.
+2. **Message Broker (Eclipse Mosquitto):** A lightweight pub/sub messaging layer running on localhost:1883, decoupling data generation from ingestion.
 3. **Stream Processing (Node-RED):** Subscribes to the MQTT topic, parses the JSON payload, and formats the time-series data for secure database insertion.
 4. **Time-Series Database (InfluxDB):** High-write-performance data store operating on port `8086`. Archives the real-time stream into designated buckets.
-5. **Visualization Layer (Grafana):** Connects to InfluxDB via Flux queries. Utilizes `aggregateWindow` functions mapped to `$__interval` for dynamic, pixel-perfect data downsampling on the UI.
+5. **Visualization Layer (Grafana):** Utilizes aggregateWindow functions mapped to v.windowPeriod for dynamic, pixel-perfect data downsampling on the UI.
 
 ## Prerequisites & Local Setup
 
