@@ -1,0 +1,8 @@
+// Pixel-perfect mean downsampling for Grafana UI
+from(bucket: "Sensors_Realtime")
+  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+  |> filter(fn: (r) => r["_measurement"] == "machine_telemetry")
+  |> filter(fn: (r) => r["_field"] == "MACHINE_TEMP")
+  // v.windowPeriod dynamically scales to panel width
+  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
+  |> yield(name: "temperature_mean")
