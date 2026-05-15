@@ -1,0 +1,54 @@
+name: gateway
+
+services:
+  mqtt-broker:
+    image: eclipse-mosquitto:2.0.15
+    container_name: mqtt-broker
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  cnc-gateway:
+    image: cnc-sensor:latest
+    container_name: cnc-gateway
+    environment:
+      - MQTT_BROKER=mqtt-broker
+    depends_on:
+      - mqtt-broker
+
+  node-red:
+    image: nodered/node-red:latest
+    container_name: node-red
+    ports:
+      - "1880:1880"
+    volumes:
+      - node_red_data:/data
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=adminpassword
+      - DOCKER_INFLUXDB_INIT_ORG=fraunhofer
+      - DOCKER_INFLUXDB_INIT_BUCKET=factory_data
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+# This is the Vault. It tells Docker to create permanent storage drives on your laptop.
+volumes:
+  node_red_data:
+  influxdb_data:
+  grafana_data:
