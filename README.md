@@ -123,6 +123,21 @@ The Python edge gateway reads its MQTT broker target from environment variables.
 
 ---
 
+## 🧰 Development Environment
+
+This project was developed and tested using:
+
+- **VS Code** with the Docker, Python, and Remote-Containers extensions for integrated container management
+- **Docker Desktop** (Windows) for container orchestration and the embedded daemon
+- **PowerShell** as the integrated terminal for `docker compose` commands
+- **Python 3.11** runtime for the edge gateway implementation
+- **Windows 10/11** as the development host (the stack is OS-agnostic and runs equally on Linux/macOS hosts)
+
+To work on the codebase locally, install the Docker and Python extensions in VS Code, then open the repository folder. The integrated terminal makes it possible to run the entire `docker compose up -d` workflow without leaving the IDE.
+
+---
+---
+
 ## 🔁 Reproducing the Full Setup
 
 For first-time setup after `docker compose up -d`, the Node-RED flow and Grafana dashboard need to be imported once. After this initial step, both configurations persist via Docker volumes across restarts.
