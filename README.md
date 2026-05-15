@@ -83,7 +83,8 @@ The architecture follows a classic IIoT pipeline pattern:
 
 ```bash
 # Clone the repository
-git clone https://github.com/industrial-edge-telemetry-pipeline/industrial-edge-telemetry-pipeline.git
+git clone https://github.com/IIoT-Edge-Telemetry-Pipeline
+/industrial-edge-telemetry-pipeline.git
 cd industrial-edge-telemetry-pipeline
 
 # Start the full stack
