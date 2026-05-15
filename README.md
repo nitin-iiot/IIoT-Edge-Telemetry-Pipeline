@@ -21,7 +21,7 @@ graph TD
     B -->|Topic Routing| C[Node-RED Stream Processing]
     C -->|Data Structuring| D[(InfluxDB Time-Series DB)]
     D -->|v.windowPeriod Flux Query| E[Grafana Dashboard]## System Architecture
-'''
+` ``` `
 
 ## Future Work & Roadmap
 * **Containerization:** Wrap the infrastructure layer (Broker, Node-RED, DB, Grafana) into a `docker-compose.yml` stack for single-command deployment.
