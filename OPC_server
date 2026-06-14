@@ -1,0 +1,37 @@
+import asyncio
+from asyncua import Client
+
+async def main():
+    # 1. The Address of the Factory Door
+    url = "opc.tcp://127.0.0.1:4840/freeopcua/server/"
+    
+    print(f"Worker is walking up to the PLC at {url} ...")
+    
+    # 2. Clock in and open the connection
+    async with Client(url=url) as client:
+        print("Connected! Worker is inside the machine's brain.")
+        
+        # 3. Find the correct filing cabinet (Namespace)
+        uri = "http://fraunhofer.iwu.cnc"
+        idx = await client.get_namespace_index(uri)
+        
+        # 4. Navigate the folders to find the exact temperature tag
+        # We start at the Root Objects folder, then look for CNC_1, then SpindleTemperature
+        objects = client.nodes.objects
+        temp_node = await objects.get_child([f"{idx}:CNC_1", f"{idx}:SpindleTemperature"])
+        
+        print(f"Found the sensor tag! Starting the read cycle...\n")
+        print("-" * 40)
+        
+        # 5. The Infinite Loop: Reading the gauge
+        while True:
+            # Read the actual value from the PLC's memory
+            current_temp = await temp_node.read_value()
+            
+            print(f"Edge Gateway successfully read: {current_temp} °C")
+            
+            # Wait 2 seconds before reading again (matching the PLC scan cycle)
+            await asyncio.sleep(2)
+
+if __name__ == "__main__":
+    asyncio.run(main())
