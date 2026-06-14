@@ -53,9 +53,6 @@ The architecture follows a modern IT/OT convergence pattern:
 | :--- | :--- | :--- |
 | Semantic Twin | AASX Package Explorer · IDTA V3 | Standardized machine shell and operational submodels |
 | Machine Protocol | OPC UA (asyncio) | Deterministic industrial control simulation |
-
-| Layer | Technology | Role |
-|-------|-----------|------|
 | Edge Gateway | Python 3.11 · `paho-mqtt` | Telemetry simulation, MQTT publishing with LWT |
 | Messaging | Eclipse Mosquitto 2.0 | MQTT broker, topic-based routing |
 | Stream Processing | Node-RED 3.x | Payload parsing, transformation, InfluxDB write |
@@ -188,11 +185,11 @@ This repository represents **Phase 1** of a layered Industry 4.0 digital-twin ar
 | Phase | Scope | Status |
 |-------|-------|--------|
 | **Phase 1** | Data infrastructure — Python edge, MQTT, Node-RED, InfluxDB, Grafana, Docker | ✅ **Complete** |
-| **Phase 2** | OPC UA integration as the bridge from real PLCs to the existing pipeline | 🟡 In progress |
+| **Phase 2** | OPC UA integration as the bridge from real PLCs to the existing pipeline |✅ **Complete**  |
 | **Phase 3** | Semantic modelling via Asset Administration Shell (Eclipse BaSyx), aligned to BFO / IOF ontologies | ✅ **Complete** |
-| **Phase 4** | Machine learning — anomaly detection and predictive-maintenance models on the time-series data | ✅ **Complete** |
 
-Phases 3 and 4 are explicitly motivated by my interest in research on AAS-based digital twins and semantic-ML integration in industrial production environments.
+
+Phase 3 explicitly motivated by my interest in research on AAS-based digital twins and semantic-ML integration in industrial production environments.
 
 ---
 
