@@ -1,6 +1,6 @@
-# Industrial Edge Telemetry Pipeline
+# Industrial Edge Telemetry & Semantic Digital Twin (AAS)
 
-> A fully containerized, end-to-end IIoT data infrastructure for industrial condition monitoring — built as the foundational layer for digital-twin and predictive-maintenance research.
+An end-to-end, fully containerized IIoT data infrastructure for condition monitoring — bridging the gap from raw OPC UA shop-floor data to a standardized Asset Administration Shell (AAS).
 
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![MQTT](https://img.shields.io/badge/MQTT-Mosquitto-660066?logo=eclipsemosquitto&logoColor=white)](https://mosquitto.org/)
@@ -39,15 +39,20 @@ flowchart TD
 
 The architecture follows a classic IIoT pipeline pattern:
 
-1. **Edge gateway** simulates CNC telemetry and publishes structured JSON over MQTT with Last Will Testament for connection resilience
-2. **MQTT broker** routes messages by topic to subscribed consumers
-3. **Node-RED** parses payloads and writes structured points into InfluxDB
-4. **InfluxDB** stores time-series data with configurable retention
-5. **Grafana** queries InfluxDB using a custom downsampled Flux query for accurate rendering at any time range
+The architecture follows a modern IT/OT convergence pattern:
 
+1. **OT Layer:** An asynchronous OPC UA server (`fake_plc.py`) simulates legacy CNC machine telemetry.
+2. **Edge Gateway:** A Python bridge subscribes to the OPC UA nodes and translates payloads into lightweight JSON over MQTT, equipped with Last Will and Testament (LWT) for connection resilience.
+3. **IT Infrastructure:** Eclipse Mosquitto routes topics, Node-RED parses streams into InfluxDB, and Grafana visualizes the time-series data using custom downsampled Flux queries.
+4. **Semantic Layer (Industry 4.0):** The raw data points are structurally mapped into an official Asset Administration Shell (`CNC_1_Twin.aasx`) adhering to the IDTA V3 standard, making the data machine-readable for downstream predictive analytics.
 ---
 
 ## 🛠️ Tech Stack
+
+| Layer | Technology | Role |
+| :--- | :--- | :--- |
+| Semantic Twin | AASX Package Explorer · IDTA V3 | Standardized machine shell and operational submodels |
+| Machine Protocol | OPC UA (asyncio) | Deterministic industrial control simulation |
 
 | Layer | Technology | Role |
 |-------|-----------|------|
@@ -184,8 +189,8 @@ This repository represents **Phase 1** of a layered Industry 4.0 digital-twin ar
 |-------|-------|--------|
 | **Phase 1** | Data infrastructure — Python edge, MQTT, Node-RED, InfluxDB, Grafana, Docker | ✅ **Complete** |
 | **Phase 2** | OPC UA integration as the bridge from real PLCs to the existing pipeline | 🟡 In progress |
-| **Phase 3** | Semantic modelling via Asset Administration Shell (Eclipse BaSyx), aligned to BFO / IOF ontologies | 🟢 Planned |
-| **Phase 4** | Machine learning — anomaly detection and predictive-maintenance models on the time-series data | 🟢 Planned |
+| **Phase 3** | Semantic modelling via Asset Administration Shell (Eclipse BaSyx), aligned to BFO / IOF ontologies | ✅ **Complete** |
+| **Phase 4** | Machine learning — anomaly detection and predictive-maintenance models on the time-series data | ✅ **Complete** |
 
 Phases 3 and 4 are explicitly motivated by my interest in research on AAS-based digital twins and semantic-ML integration in industrial production environments.
 
