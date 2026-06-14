@@ -1,0 +1,37 @@
+{
+  "assetAdministrationShells": [
+    {
+      "idShort": "CNC_1",
+      "id": "https://fraunhofer.iwu.cnc/aas/cnc_1",
+      "assetInformation": {
+        "assetKind": "Instance",
+        "globalAssetId": "https://fraunhofer.iwu.cnc/asset/cnc_1"
+      },
+      "submodels": [
+        {
+          "type": "ModelReference",
+          "keys": [
+            {
+              "type": "Submodel",
+              "value": "https://fraunhofer.iwu.cnc/aas/cnc_1/sm/operational_data"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "submodels": [
+    {
+      "idShort": "OperationalData",
+      "id": "https://fraunhofer.iwu.cnc/aas/cnc_1/sm/operational_data",
+      "submodelElements": [
+        {
+          "modelType": "Property",
+          "idShort": "SpindleTemperature",
+          "valueType": "xs:float"
+        }
+      ]
+    }
+  ],
+  "conceptDescriptions": []
+}
