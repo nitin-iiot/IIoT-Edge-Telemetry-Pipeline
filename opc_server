@@ -1,0 +1,50 @@
+import asyncio
+import random
+from asyncua import Server
+
+async def main():
+    # 1. Build the PLC (The Server)
+    server = Server()
+    await server.init()
+    
+    # 2. Set the Front Door (Endpoint)
+    # Port 4840 is the global industry standard for OPC UA.
+    server.set_endpoint("opc.tcp://0.0.0.0:4840/freeopcua/server/")
+
+    # 3. Create the Company Namespace
+    # Namespaces prevent collisions. If two machines have a "Sensor1", 
+    # the namespace tells the network WHICH company's Sensor1 it is.
+    uri = "http://fraunhofer.iwu.cnc"
+    idx = await server.register_namespace(uri)
+
+    # 4. Build the Folder Structure (The Address Space)
+    objects = server.nodes.objects
+    
+    # Add the Machine (Object)
+    cnc_machine = await objects.add_object(idx, "CNC_1")
+    
+    # Add the Sensor (Variable) with a starting temperature of 75.0
+    spindle_temp = await cnc_machine.add_variable(idx, "SpindleTemperature", 75.0)
+    
+    # Tell the PLC that this variable is allowed to be updated
+    await spindle_temp.set_writable()
+
+    # 5. Turn on the PLC and start the physics simulation
+    async with server:
+        print("Fake PLC is running at opc.tcp://0.0.0.0:4840 ...")
+        
+        while True:
+            # Simulate the physical thermocouple heating up and cooling down
+            new_temp = round(random.uniform(75.0, 110.0), 2)
+            
+            # Write the new temperature to the PLC's internal memory register
+            await spindle_temp.write_value(new_temp)
+            
+            print(f"PLC Internal ADC read: {new_temp} °C")
+            
+            # Wait 2 seconds before the next PLC scan cycle
+            await asyncio.sleep(2)
+
+if __name__ == "__main__":
+    # Python requires asyncio.run() to execute modern asynchronous code.
+    asyncio.run(main())
