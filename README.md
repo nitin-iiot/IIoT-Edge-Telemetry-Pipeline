@@ -8,12 +8,14 @@ An end-to-end, fully containerized IIoT data infrastructure for condition monito
 [![InfluxDB](https://img.shields.io/badge/InfluxDB-2.7-22ADF6?logo=influxdb&logoColor=white)](https://www.influxdata.com/)
 [![Grafana](https://img.shields.io/badge/Grafana-10.x-F46800?logo=grafana&logoColor=white)](https://grafana.com/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
+![OPC UA](https://img.shields.io/badge/OPC%20UA-IEC%2062541-005A9C)
+![AAS](https://img.shields.io/badge/Asset%20Administration%20Shell-IEC%2063278-1A7F37)
 
 ---
 
 ## 📌 Objective
 
-An end-to-end, fully containerized edge computing architecture designed to extract, route, and visualize high-frequency machine telemetry. Built as a foundational data infrastructure for IIoT Digital Twin condition monitoring, supporting my M.Sc. Advanced Manufacturing research at TU Chemnitz.
+An end-to-end, fully containerized edge computing architecture designed to extract, route, store, and visualize machine telemetry. Built as a foundational data infrastructure for IIoT Digital Twin condition monitoring, supporting my M.Sc. Advanced Manufacturing research at TU Chemnitz.
 
 The project addresses a real manufacturing problem: industrial production lines generate continuous sensor data from PLCs, CNC machines, and discrete equipment. Without a reliable pipeline to capture, transform, and visualize this telemetry, predictive-maintenance analytics and digital-twin frameworks have no foundation. This repository demonstrates the IT–OT infrastructure layer that makes downstream semantic modelling and machine learning possible.
 
@@ -23,35 +25,48 @@ The project addresses a real manufacturing problem: industrial production lines 
 
 ```mermaid
 flowchart TD
-    A[Python CNC Edge Gateway] -->|JSON over MQTT| B[Mosquitto MQTT Broker]
-    B -->|Topic Routing| C[Node-RED Stream Processing]
-    C -->|Data Structuring| D[(InfluxDB Time-Series DB)]
-    D -->|v.windowPeriod Flux Query| E[Grafana Dashboard]
-```
+    PLC["CNC Controller<br/>OPC UA Server · IEC 62541<br/>(simulated)"]
+    GW["Python Edge Gateway<br/>JSON over MQTT + LWT"]
+    BROKER["Eclipse Mosquitto<br/>MQTT Broker"]
+    NR["Node-RED<br/>Stream Processing"]
+    DB["InfluxDB<br/>Time-Series DB"]
+    GRAF["Grafana<br/>Dashboards · adaptive Flux"]
+    AAS["Asset Administration Shell<br/>IEC 63278 · IDTA V3"]
 
-The architecture follows a classic IIoT pipeline pattern:
+    PLC -- "OPC UA" --> GW
+    GW -- "JSON / MQTT" --> BROKER
+    BROKER -- "topic routing" --> NR
+    NR -- "structured points" --> DB
+    DB -- "v.windowPeriod Flux" --> GRAF
+    GW -. "modelled as / Phase 4 live binding" .-> AAS
+```
 
 The architecture follows a modern IT/OT convergence pattern:
 
-1. **OT Layer:** An asynchronous OPC UA server (`fake_plc.py`) simulates legacy CNC machine telemetry.
-2. **Edge Gateway:** A Python bridge subscribes to the OPC UA nodes and translates payloads into lightweight JSON over MQTT, equipped with Last Will and Testament (LWT) for connection resilience.
-3. **IT Infrastructure:** Eclipse Mosquitto routes topics, Node-RED parses streams into InfluxDB, and Grafana visualizes the time-series data using custom downsampled Flux queries.
-4. **Semantic Layer (Industry 4.0):** The raw data points are structurally mapped into an official Asset Administration Shell (`CNC_1_Twin.aasx`) adhering to the IDTA V3 standard, making the data machine-readable for downstream predictive analytics.
----
+1. **OT Layer:** An OPC UA server (`opcua_server.py`) simulates a CNC machine controller, exposing telemetry over OPC UA (IEC 62541).
+2. **Edge Gateway:** A Python gateway acquires the telemetry and publishes it as JSON over MQTT, with a Last Will and Testament (LWT) for connection resilience.
+3. **IT Infrastructure:** Eclipse Mosquitto routes topics, Node-RED parses streams into InfluxDB, and Grafana visualizes the time-series with adaptive downsampled Flux queries.
+4. **Semantic Layer (Industrie 4.0):** The machine is modelled as an Asset Administration Shell (`CNC_1_Twin.aasx`) following AAS Specification V3 (IDTA / IEC 63278), making the asset machine-readable for downstream analytics.
+**What runs live vs. standalone (honest scope):** The containerized pipeline
+> (edge → MQTT → Node-RED → InfluxDB → Grafana) runs end to end. The OPC UA
+> server/gateway (`phase2_opcua/`) and the AAS twin (`phase3_aas/`) are included
+> as standalone modules; wiring the OPC UA gateway into the containerized path
+> and live-binding the AAS `OperationalData` submodel are tracked as Phase 4.
+
+## 🛠️ Tech Stack
 
 ## 🛠️ Tech Stack
 
 | Layer | Technology | Role |
-| :--- | :--- | :--- |
-| Semantic Twin | AASX Package Explorer · IDTA V3 | Standardized machine shell and operational submodels |
-| Machine Protocol | OPC UA (asyncio) | Deterministic industrial control simulation |
-| Edge Gateway | Python 3.11 · `paho-mqtt` | Telemetry simulation, MQTT publishing with LWT |
+|---|---|---|
+| Semantic Twin | AASX Package Explorer · AAS V3 (IEC 63278) | Standardized machine shell and operational submodels |
+| Machine Protocol | OPC UA · asyncua | Machine-controller telemetry over OPC UA (IEC 62541), simulated |
+| Edge Gateway | Python 3.11 · paho-mqtt | Telemetry simulation, MQTT publishing with LWT |
 | Messaging | Eclipse Mosquitto 2.0 | MQTT broker, topic-based routing |
 | Stream Processing | Node-RED 3.x | Payload parsing, transformation, InfluxDB write |
 | Storage | InfluxDB 2.7 | Time-series database with retention |
 | Visualization | Grafana 10.x | Dashboards with custom Flux queries |
-| Orchestration | Docker · Docker Compose | One-command reproducible deployment |
-
+| Orchestration | Docker · Docker Compose | Reproducible deployment (one-time provisioning of flow + dashboard) |
 ---
 
 ## 📁 Repository Structure
@@ -67,6 +82,14 @@ The architecture follows a modern IT/OT convergence pattern:
 ├── machine_temp_downsample.flux     # Custom Flux query for adaptive downsampling
 ├── dashboard.png                    # Screenshot of the live dashboard
 └── README.md
+├── phase2_opcua/
+│   ├── opcua_server.py        # Simulated CNC controller (OPC UA server)
+│   └── opcua_client.py        # OPC UA → telemetry gateway
+├── phase3_aas/
+│   ├── CNC_1_Twin.aasx        # Asset Administration Shell (IEC 63278)
+│   └── README.md              # What the twin models
+├── .github/workflows/ci.yml   # CI: compose validation + py compile
+├── LICENSE                    # MIT
 ```
 
 ---
@@ -77,9 +100,8 @@ The architecture follows a modern IT/OT convergence pattern:
 
 ```bash
 # Clone the repository
-git clone https://github.com/IIoT-Edge-Telemetry-Pipeline
-/industrial-edge-telemetry-pipeline.git
-cd industrial-edge-telemetry-pipeline
+git clone https://github.com/nitin-iiot/IIoT-Edge-Telemetry-Pipeline.git
+cd IIoT-Edge-Telemetry-Pipeline
 
 # Start the full stack
 docker compose up -d
@@ -119,15 +141,8 @@ The Python edge gateway reads its MQTT broker target from environment variables.
 
 ## 🧰 Development Environment
 
-This project was developed and tested using:
-
-- **VS Code** with the Docker, Python, and Remote-Containers extensions for integrated container management
-- **Docker Desktop** (Windows) for container orchestration and the embedded daemon
-- **PowerShell** as the integrated terminal for `docker compose` commands
-- **Python 3.11** runtime for the edge gateway implementation
-- **Windows 10/11** as the development host (the stack is OS-agnostic and runs equally on Linux/macOS hosts)
-
-To work on the codebase locally, install the Docker and Python extensions in VS Code, then open the repository folder. The integrated terminal makes it possible to run the entire `docker compose up -d` workflow without leaving the IDE.
+- **Runtime:** Python 3.11, Docker + Docker Compose v2
+- **Host:** OS-agnostic — developed on Windows, runs equally on Linux/macOS
 
 ---
 ---
@@ -172,16 +187,14 @@ After completing the steps above:
 
 ## 🗺️ Project Roadmap
 
-This repository represents **Phase 1** of a layered Industry 4.0 digital-twin architecture I am building incrementally. The phased structure reflects how production-grade digital twins are typically built: stable infrastructure first, then connectivity, semantics, and analytics.
-
 | Phase | Scope | Status |
-|-------|-------|--------|
-| **Phase 1** | Data infrastructure — Python edge, MQTT, Node-RED, InfluxDB, Grafana, Docker | ✅ **Complete** |
-| **Phase 2** | OPC UA integration as the bridge from real PLCs to the existing pipeline |✅ **Complete**  |
-| **Phase 3** | Semantic modelling via Asset Administration Shell (Eclipse BaSyx), aligned to BFO / IOF ontologies | ✅ **Complete** |
-
-
-Phase 3 explicitly motivated by my interest in research on AAS-based digital twins and semantic-ML integration in industrial production environments.
+|---|---|---|
+| **Phase 1** | Data infrastructure — Python edge, MQTT, Node-RED, InfluxDB, Grafana, Docker | ✅ Complete |
+| **Phase 2** | OPC UA integration — telemetry from a simulated CNC controller into the pipeline (IEC 62541) | ✅ Complete |
+| **Phase 3** | Semantic digital twin — Asset Administration Shell (AAS Spec V3, IEC 63278), modelled in AASX Package Explorer | ✅ Complete |
+| **Phase 4** | Live binding — stream OPC UA values into the AAS `OperationalData` submodel; anomaly detection on the thermal series | 🟡 In progress |
+| **Phase 5** | Semantic enrichment — align AAS submodels to IOF / BFO ontologies for cross-vendor interoperability | 🟢 Planned (research direction) |
+```
 
 ---
 
