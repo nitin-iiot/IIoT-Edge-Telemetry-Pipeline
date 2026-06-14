@@ -19,14 +19,6 @@ The project addresses a real manufacturing problem: industrial production lines 
 
 ---
 
-## 📊 Live Dashboard
-
-![Grafana dashboard — CNC_1 live temperature monitoring with 100°C overheating threshold](dashboard.png)
-
-The Grafana dashboard renders live `MACHINE_TEMP` telemetry, with a 100 °C operator-awareness threshold line, a real-time Stat panel for the current value, and adaptive historical trend retention via a custom downsampled Flux query.
-
----
-
 ## 🏗️ System Architecture
 
 ```mermaid
