@@ -47,13 +47,10 @@ The architecture follows a modern IT/OT convergence pattern:
 2. **Edge Gateway:** A Python gateway acquires the telemetry and publishes it as JSON over MQTT, with a Last Will and Testament (LWT) for connection resilience.
 3. **IT Infrastructure:** Eclipse Mosquitto routes topics, Node-RED parses streams into InfluxDB, and Grafana visualizes the time-series with adaptive downsampled Flux queries.
 4. **Semantic Layer (Industrie 4.0):** The machine is modelled as an Asset Administration Shell (`CNC_1_Twin.aasx`) following AAS Specification V3 (IDTA / IEC 63278), making the asset machine-readable for downstream analytics.
-**What runs live vs. standalone (honest scope):** The containerized pipeline
-> (edge → MQTT → Node-RED → InfluxDB → Grafana) runs end to end. The OPC UA
-> server/gateway (`phase2_opcua/`) and the AAS twin (`phase3_aas/`) are included
-> as standalone modules; wiring the OPC UA gateway into the containerized path
-> and live-binding the AAS `OperationalData` submodel are tracked as Phase 4.
 
-## 🛠️ Tech Stack
+> **What runs live vs. standalone (honest scope):** The containerized pipeline (edge → MQTT → Node-RED → InfluxDB → Grafana) runs end to end. The OPC UA server/gateway (`phase2_opcua/`) and the AAS twin (`phase3_aas/`) are included as standalone modules; wiring the OPC UA gateway into the containerized path and live-binding the AAS `OperationalData` submodel are tracked as Phase 4.
+
+---
 
 ## 🛠️ Tech Stack
 
@@ -67,29 +64,32 @@ The architecture follows a modern IT/OT convergence pattern:
 | Storage | InfluxDB 2.7 | Time-series database with retention |
 | Visualization | Grafana 10.x | Dashboards with custom Flux queries |
 | Orchestration | Docker · Docker Compose | Reproducible deployment (one-time provisioning of flow + dashboard) |
+
 ---
 
 ## 📁 Repository Structure
 
 ```
 .
-├── cnc_sensor.py                    # Python edge gateway (MQTT publisher with LWT)
-├── Dockerfile                       # Builds the cnc-gateway container image
-├── docker-compose.yml               # Orchestrates all 5 services
-├── requirements.txt                 # Python dependencies for the edge gateway
-├── NodeRED_Flow.json                # Importable Node-RED flow definition
-├── Grafana_Dashboard.json           # Importable Grafana dashboard definition
-├── machine_temp_downsample.flux     # Custom Flux query for adaptive downsampling
-├── dashboard.png                    # Screenshot of the live dashboard
+├── cnc_sensor.py                 # Python edge gateway (MQTT publisher with LWT)
+├── Dockerfile                    # Builds the cnc-gateway container image
+├── docker-compose.yml            # Orchestrates the containerized services
+├── requirements.txt              # Python dependencies for the edge gateway
+├── NodeRED_Flow.json             # Importable Node-RED flow definition
+├── Grafana_Dashboard.json        # Importable Grafana dashboard definition
+├── machine_temp_downsample.flux  # Custom Flux query for adaptive downsampling
+├── dashboard.png                 # Screenshot of the live dashboard
+├── phase2_opcua/                 # Phase 2 — OPC UA module
+│   ├── opcua_server.py           #   Simulated CNC controller (OPC UA server)
+│   └── opcua_client.py           #   OPC UA -> telemetry gateway
+├── phase3_aas/                   # Phase 3 — Asset Administration Shell
+│   ├── CNC_1_Twin.aasx           #   AAS digital twin (IEC 63278)
+│   └── README.md                 #   What the twin models
+├── .github/
+│   └── workflows/
+│       └── ci.yml                # CI: compose validation + py-compile
+├── LICENSE                       # MIT
 └── README.md
-├── phase2_opcua/
-│   ├── opcua_server.py        # Simulated CNC controller (OPC UA server)
-│   └── opcua_client.py        # OPC UA → telemetry gateway
-├── phase3_aas/
-│   ├── CNC_1_Twin.aasx        # Asset Administration Shell (IEC 63278)
-│   └── README.md              # What the twin models
-├── .github/workflows/ci.yml   # CI: compose validation + py compile
-├── LICENSE                    # MIT
 ```
 
 ---
@@ -106,7 +106,7 @@ cd IIoT-Edge-Telemetry-Pipeline
 # Start the full stack
 docker compose up -d
 
-# Verify all five services are running
+# Verify the services are running
 docker compose ps
 ```
 
@@ -144,7 +144,6 @@ The Python edge gateway reads its MQTT broker target from environment variables.
 - **Runtime:** Python 3.11, Docker + Docker Compose v2
 - **Host:** OS-agnostic — developed on Windows, runs equally on Linux/macOS
 
----
 ---
 
 ## 🔁 Reproducing the Full Setup
@@ -194,7 +193,6 @@ After completing the steps above:
 | **Phase 3** | Semantic digital twin — Asset Administration Shell (AAS Spec V3, IEC 63278), modelled in AASX Package Explorer | ✅ Complete |
 | **Phase 4** | Live binding — stream OPC UA values into the AAS `OperationalData` submodel; anomaly detection on the thermal series | 🟡 In progress |
 | **Phase 5** | Semantic enrichment — align AAS submodels to IOF / BFO ontologies for cross-vendor interoperability | 🟢 Planned (research direction) |
-```
 
 ---
 
@@ -202,16 +200,19 @@ After completing the steps above:
 
 Built by **Nitin Senthilkumar**, M.Sc. Advanced Manufacturing student at **Technische Universität Chemnitz** (TU Chemnitz). Manufacturing-engineering background with focus on Industry 4.0, the IT–OT interface, and industrial data systems.
 
-📧 [nitin.senthilkumar@s2025.tu-chemnitz.de](mailto:nitin.senthilkumar@s2025.tu-chemnitz.de)
-🎓 M.Sc. Advanced Manufacturing · TU Chemnitz
+- 📧 [nitin.senthilkumar@s2025.tu-chemnitz.de](mailto:nitin.senthilkumar@s2025.tu-chemnitz.de)
+- 🎓 M.Sc. Advanced Manufacturing · TU Chemnitz
 
 ---
 
 ## 📄 License
 
+This project is licensed under the MIT License.
+
+```
 MIT License
 
-Copyright (c) 2026 Nitin
+Copyright (c) 2026 Nitin Senthilkumar
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -230,3 +231,4 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+```
