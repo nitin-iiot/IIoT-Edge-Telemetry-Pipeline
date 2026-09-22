@@ -184,3 +184,26 @@ MIT — see [LICENSE](LICENSE).
 ---
 
 ## Repository structure
+
+```
+.
+├── edge_gateway.py               # simulated telemetry publisher (MQTT + LWT)
+├── Dockerfile
+├── docker-compose.yml            # Mosquitto, Node-RED, InfluxDB, Grafana
+├── requirements.txt
+├── NodeRED_Flow.json             # importable Node-RED flow
+├── Grafana_Dashboard.json        # importable Grafana dashboard
+├── machine_temp_downsample.flux
+├── dashboard.png
+├── tool_wear/                    # the tool-wear estimation project
+│   ├── features.py               # build features; rise vs each tool's first cut
+│   ├── calibrate.py              # fit VB = slope·rise + intercept on one tool
+│   ├── estimator.py              # subscribe to telemetry, estimate VB + RUL
+│   ├── replay.py                 # stream a tool's recordings over MQTT
+│   └── runs.csv                  # derived per-cut features (from the NASA dataset)
+├── LICENSE
+└── README.md
+```
+
+> The raw NASA `mill.mat` is not redistributed here — download it from the NASA
+> Prognostics Data Repository. `runs.csv` holds the per-cut features derived from it.
