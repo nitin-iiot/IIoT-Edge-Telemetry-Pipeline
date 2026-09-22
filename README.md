@@ -4,11 +4,11 @@ A containerized MQTT → Node-RED → InfluxDB → Grafana pipeline for machine
 condition monitoring, and a condition-monitoring project built on top of it:
 estimating tool flank wear from spindle motor current.
 
-[![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.9-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![MQTT](https://img.shields.io/badge/MQTT-Mosquitto-660066?logo=eclipsemosquitto&logoColor=white)](https://mosquitto.org/)
-[![Node-RED](https://img.shields.io/badge/Node--RED-3.x-8F0000?logo=nodered&logoColor=white)](https://nodered.org/)
+[![Node-RED](https://img.shields.io/badge/Node--RED-latest-8F0000?logo=nodered&logoColor=white)](https://nodered.org/)
 [![InfluxDB](https://img.shields.io/badge/InfluxDB-2.7-22ADF6?logo=influxdb&logoColor=white)](https://www.influxdata.com/)
-[![Grafana](https://img.shields.io/badge/Grafana-10.x-F46800?logo=grafana&logoColor=white)](https://grafana.com/)
+[![Grafana](https://img.shields.io/badge/Grafana-latest-F46800?logo=grafana&logoColor=white)](https://grafana.com/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 
 ---
@@ -116,12 +116,12 @@ simulating it lets the rest of the pipeline be built and tested without a machin
 
 | Layer | Technology |
 |---|---|
-| Signal / data work | Python 3.11 · pandas · NumPy · Matplotlib |
-| Edge gateway & replay | Python · paho-mqtt |
-| Broker | Eclipse Mosquitto 2.0 |
-| Stream processing | Node-RED 3.x |
+| Signal / data work | pandas · NumPy · Matplotlib |
+| Edge gateway & replay | Python 3.9 · paho-mqtt |
+| Broker | Eclipse Mosquitto 2.0.15 |
+| Stream processing | Node-RED |
 | Storage | InfluxDB 2.7 |
-| Visualization | Grafana 10.x (Flux) |
+| Visualization | Grafana (Flux) |
 | Orchestration | Docker · Docker Compose |
 
 
