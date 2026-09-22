@@ -66,12 +66,14 @@ Grafana shows estimate against measurement, with a colour-coded countdown to the
 wear limit.
 
 ```bash
+# from the repo root, with the pipeline already up (see Quick start)
+
 # terminal 1 — start the estimator (it takes its fresh-tool baseline from
 # the first message, so start it first)
-python estimator.py
+python tool_wear/estimator.py
 
 # terminal 2 — replay a held-out tool over MQTT
-python replay.py --case 11 --speed 3.0
+python tool_wear/replay.py --case 11 --speed 3.0
 ```
 
 ---
@@ -121,77 +123,6 @@ simulating it lets the rest of the pipeline be built and tested without a machin
 | Storage | InfluxDB 2.7 |
 | Visualization | Grafana 10.x (Flux) |
 | Orchestration | Docker · Docker Compose |
-├── tool_wear/
-│ ├── features.py # build features; rise vs each tool's first cut
-│ ├── calibrate.py # fit VB = slope·rise + intercept on one tool
-│ ├── estimator.py # subscribe to telemetry, estimate VB + RUL
-│ ├── replay.py # stream a tool's recordings over MQTT
-│ └── runs.csv # derived per-cut features (from the NASA dataset)
-├── pipeline/
-│ ├── edge_gateway.py # simulated telemetry publisher (MQTT + LWT)
-│ ├── docker-compose.yml # Mosquitto, Node-RED, InfluxDB, Grafana
-│ ├── NodeRED_Flow.json # importable Node-RED flow
-│ ├── Grafana_Dashboard.json # importable Grafana dashboard
-│ └── machine_temp_downsample.flux
-├── requirements.txt
-├── LICENSE # MIT
-└── README.md
-
-> The raw NASA `mill.mat` is not redistributed here — download it from the NASA
-> Prognostics Data Repository. `runs.csv` holds the per-cut features derived from it.
-
----
-
-## Quick start (pipeline)
-
-**Prerequisites:** Docker Desktop, or Docker Engine with Compose v2.
-
-```bash
-git clone https://github.com/nitin-iiot/IIoT-Edge-Telemetry-Pipeline.git
-cd IIoT-Edge-Telemetry-Pipeline/pipeline
-docker compose up -d
-docker compose ps
-```
-
-| Service | URL |
-|---------|-----|
-| Grafana | http://localhost:3000 |
-| Node-RED | http://localhost:1880 |
-| InfluxDB | http://localhost:8086 |
-
-On first run, import `NodeRED_Flow.json` in Node-RED (Menu → Import → Deploy),
-point Grafana at InfluxDB (Flux, URL `http://influxdb:8086`), and import
-`Grafana_Dashboard.json`. Both persist via Docker volumes afterwards.
-
-Stop with `docker compose down`.
-
----
-
-## Honest scope
-
-- **Real and mine to defend:** the signal reasoning (why current rise tracks
-  wear, why a ratio to the first cut cancels the setup gain), the data handling
-  (outlier rule, honest treatment of missing labels, an out-of-sample split
-  that never touches the reference channel), and running the MQTT → Node-RED →
-  InfluxDB → Grafana pipeline.
-- **Learned with AI as a tutor:** the container and MQTT scaffolding. I can
-  read and debug this stack faster than I can yet write it unaided.
-- **Not here:** a real machine, an OPC UA client, multi-sensor fusion, or a
-  predictive ML model. Those are the next steps, not claims.
-
----
-
-## About
-
-Built by **Nitin Senthilkumar**, M.Sc. Advanced Manufacturing at **TU Chemnitz**.
-Mechanical-engineering background, focused on condition monitoring and the IT/OT
-interface.
-
-- 📧 nitin.senthilkumar@s2025.tu-chemnitz.de
-
-## License
-
-MIT — see [LICENSE](LICENSE).
 
 ---
 
