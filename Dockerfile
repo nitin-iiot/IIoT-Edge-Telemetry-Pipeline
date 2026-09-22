@@ -15,5 +15,5 @@ COPY cnc_sensor.py .
 
 # 6. Execution: The exact command the container runs the second it boots.
 # The "-u" flag forces Python to print logs to the terminal immediately, bypassing the buffer.
-CMD ["python", "-u", "cnc_sensor.py"]
+CMD ["python", "-u", "edge_gateway.py"]
 
